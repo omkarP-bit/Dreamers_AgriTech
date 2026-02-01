@@ -35,8 +35,12 @@ class Database:
     @classmethod
     async def create_indexes(cls):
         """Create database indexes"""
+        # Users collection indexes
+        await cls.db.users.create_index("email", unique=True)
+        
         # Farmers collection indexes
         await cls.db.farmers.create_index("phone", unique=True)
+        await cls.db.farmers.create_index("user_id")
         
         # Crop seasons indexes
         await cls.db.crop_seasons.create_index("farmer_id")
@@ -93,6 +97,15 @@ def serialize_doc(doc):
 # Data models (Pydantic schemas for validation)
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any
+
+
+class UserModel(BaseModel):
+    """User authentication model"""
+    email: str
+    hashed_password: str
+    name: str
+    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    updated_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
 
 
 class FarmerModel(BaseModel):

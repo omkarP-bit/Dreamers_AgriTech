@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: list = [
         "http://localhost:5173",  # Vite dev server
         "http://localhost:3000",  # Alternative frontend port
+        "http://localhost:3001",  # Another frontend port
     ]
     
     class Config:

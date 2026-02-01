@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.routes import router
+from models.database import Database
 import uvicorn
 import os
 
@@ -17,14 +18,14 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# CORS middleware
-origins = os.getenv("CORS_ORIGINS", "*").split(",")
+# CORS middleware - MUST be added before routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # Allow all origins in development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Include API routes
@@ -39,10 +40,12 @@ async def health_check():
 @app.on_event("startup")
 async def startup_event():
     print("Starting Farm AI Assistant backend...")
+    await Database.connect_db()
 
 @app.on_event("shutdown")
 async def shutdown_event():
     print("Shutting down Farm AI Assistant backend...")
+    await Database.close_db()
 
 # Run app
 if __name__ == "__main__":
