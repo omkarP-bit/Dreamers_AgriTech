@@ -24,9 +24,6 @@ from .base_agent import (
     GROQ_MODEL
 )
 
-# Import multilingual service
-from services.multilingual_service import get_multilingual_service
-
 # Import tools
 from tools.weather_tools import get_weather_forecast
 from tools.seasonal_patterns import get_seasonal_patterns, analyze_soil_suitability
@@ -106,9 +103,6 @@ class FarmingAgentOrchestrator:
             "farmer_type": farmer_type,
             "current_crop": None
         }
-        
-        # User language (for multilingual support)
-        self.user_language = "en"
         
         print(f"\n{'='*60}")
         print(f"  Orchestrator Ready!")
@@ -407,15 +401,13 @@ class FarmingAgentOrchestrator:
         # Add farmer context if available
         if any(v for v in self.farmer_context.values() if v):
             context_parts.append("="*60)
-            context_parts.append("🔵 FARMER INFORMATION (DO NOT ASK AGAIN - ALREADY PROVIDED):")
+            context_parts.append("FARMER INFORMATION (already provided, do NOT ask again):")
             context_parts.append("="*60)
             for key, value in self.farmer_context.items():
                 if value:
-                    context_parts.append(f"  ✅ {key.replace('_', ' ').upper()}: {value}")
+                    context_parts.append(f"  • {key.replace('_', ' ').title()}: {value}")
             context_parts.append("")
-            context_parts.append("⚠️  YOU ALREADY KNOW THIS INFORMATION!")
-            context_parts.append("⚠️  Do NOT ask for any of the above details again!")
-            context_parts.append("⚠️  Reference it in your response instead!")
+            context_parts.append("IMPORTANT: Do NOT ask for information already provided above!")
             context_parts.append("="*60)
             context_parts.append("")
         
@@ -440,56 +432,39 @@ class FarmingAgentOrchestrator:
     
     async def process_message(self, farmer_message: str) -> Dict:
         """
-        🔥 ENHANCED: Process a message with:
-        1. Multilingual support (auto-detect language)
-        2. Dynamic agent context updates
-        3. Conversation history
-        4. Group chat response
+        🔥 ENHANCED: Process a message with dynamic agent context updates
+        
+        Key improvements:
+        1. Extract farmer info from message
+        2. UPDATE agent system messages with farmer context
+        3. Include conversation history in message
+        4. Run group chat
+        5. Select best response
         """
         
         print(f"\n{'='*60}")
         print(f"  Processing Farmer Message")
         print(f"{'='*60}")
-        print(f"  Original message: '{farmer_message[:100]}{'...' if len(farmer_message) > 100 else ''}'")
+        print(f"  Message: '{farmer_message[:100]}{'...' if len(farmer_message) > 100 else ''}'")
         print(f"  Phase: {self.current_phase}")
         print(f"{'='*60}\n")
         
-        # 🌐 MULTILINGUAL SUPPORT: Detect and translate language
-        ml_service = get_multilingual_service()
-        detected_language = ml_service.detect_language(farmer_message)
-        
-        # Translate to English if needed
-        english_message, translation_valid = ml_service.translate_to_english(
-            farmer_message, 
-            detected_language
-        )
-        
-        if not translation_valid:
-            print(f"  ⚠️ Translation quality may be low - proceeding with caution")
-        
-        # Store original language for later translation of response
-        self.user_language = detected_language
-        
-        # 1. Extract any farmer info from message (use English version)
-        self._extract_farmer_info(english_message)
+        # 1. Extract any farmer info from message
+        self._extract_farmer_info(farmer_message)
         
         # 2. 🔥 UPDATE AGENT CONTEXTS - This is the key fix!
         self._update_agent_contexts()
         
-        # Log farmer message (original language + English)
-        if detected_language != "en":
-            self.logger.log("Farmer", f"{farmer_message} (Translated: {english_message})")
-        else:
-            self.logger.log("Farmer", english_message)
-        
+        # Log farmer message
+        self.logger.log("Farmer", farmer_message)
         responses = []
         
         try:
             # 3. Build conversation context
             context = self._build_conversation_context()
             
-            # Create message WITH context (use English version for agents)
-            full_message = f"{context}\nFARMER'S CURRENT QUESTION:\n{english_message}"
+            # Create message WITH context
+            full_message = f"{context}\nFARMER'S CURRENT QUESTION:\n{farmer_message}"
             
             print(f"  📝 Built context ({len(context)} chars)")
             print(f"  📤 Sending to all agents via RoundRobinGroupChat...")
@@ -519,38 +494,22 @@ class FarmingAgentOrchestrator:
             
             # 6. Select most relevant response
             if responses:
-                final_response, selected_agent = self._get_most_relevant_response(responses, english_message)
+                final_response, selected_agent = self._get_most_relevant_response(responses, farmer_message)
             else:
                 final_response = "I'm processing your request. Could you provide more details?"
                 selected_agent = "System"
             
-            # 🌐 MULTILINGUAL: Translate response back to user's language if needed
-            if self.user_language and self.user_language != "en":
-                print(f"\n  🔤 Translating response back to {self.user_language}...")
-                final_response_translated = ml_service.translate_from_english(
-                    final_response, 
-                    self.user_language
-                )
-                print(f"  ✅ Response translated")
-                # Log the original English response for record keeping
-                self.logger.log(selected_agent, f"{final_response} (Translated to {self.user_language}: {final_response_translated[:100]}...)")
-            else:
-                final_response_translated = final_response
-                self.logger.log(selected_agent, final_response)
-            
-            print(f"\n  ✅ Final response from {selected_agent} ({len(final_response_translated)} chars)")
+            print(f"\n  ✅ Final response from {selected_agent} ({len(final_response)} chars)")
             print(f"{'='*60}\n")
             
             return {
-                "final_response": final_response_translated,
-                "final_response_en": final_response,  # Keep English version too
+                "final_response": final_response,
                 "selected_agent": selected_agent,
                 "agent_debate": responses,
                 "conversation_history": self.logger.get_conversation(),
                 "active_agents": list(set(r["agent"] for r in responses)),
                 "phase": self.current_phase,
                 "farmer_context": self.farmer_context,
-                "user_language": self.user_language,
                 "success": True
             }
             

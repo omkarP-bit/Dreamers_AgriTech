@@ -74,21 +74,10 @@ const ChatPage = () => {
     try {
       setLoading(true);
 
-      // 🔥 FIX: If no season exists, create one NOW (don't wait for response)
-      let seasonId = season?.id;
-      if (!seasonId) {
-        // Generate a new season ID for this conversation
-        seasonId = 'season_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        setSeason({ id: seasonId });
-        console.log(`📦 Created new season: ${seasonId}`);
-      }
-
-      console.log(`📤 Sending message with season_id: ${seasonId}`);
-
       // Send message to backend
       const response = await chatAPI.sendMessage({
         message: userMessage,
-        season_id: seasonId
+        season_id: season?.id
       });
 
       // Add bot response
@@ -100,8 +89,7 @@ const ChatPage = () => {
       };
       setMessages(prev => [...prev, botMsg]);
 
-      // Update season ID if it came from backend
-      if (response.data.season_id && response.data.season_id !== seasonId) {
+      if (response.data.season_id && !season) {
         setSeason({ id: response.data.season_id });
       }
 
