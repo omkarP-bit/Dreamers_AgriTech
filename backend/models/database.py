@@ -18,7 +18,11 @@ class Database:
     @classmethod
     async def connect_db(cls):
         """Connect to MongoDB"""
-        cls.client = AsyncIOMotorClient(settings.MONGODB_URI)
+        cls.client = AsyncIOMotorClient(
+            settings.MONGODB_URI,
+            tls=True,
+            tlsAllowInvalidCertificates=False
+        )
         cls.db = cls.client[settings.MONGODB_DB_NAME]
         print(f"✅ Connected to MongoDB: {settings.MONGODB_DB_NAME}")
         
@@ -35,27 +39,30 @@ class Database:
     @classmethod
     async def create_indexes(cls):
         """Create database indexes"""
-        # Users collection indexes
-        await cls.db.users.create_index("email", unique=True)
-        
-        # Farmers collection indexes
-        await cls.db.farmers.create_index("phone", unique=True)
-        await cls.db.farmers.create_index("user_id")
-        
-        # Crop seasons indexes
-        await cls.db.crop_seasons.create_index("farmer_id")
-        await cls.db.crop_seasons.create_index("status")
-        await cls.db.crop_seasons.create_index("current_phase")
-        
-        # Tasks indexes
-        await cls.db.tasks.create_index("season_id")
-        await cls.db.tasks.create_index("status")
-        await cls.db.tasks.create_index("scheduled_date")
-        
-        # Conversations index
-        await cls.db.agent_conversations.create_index("season_id")
-        
-        print("✅ Database indexes created")
+        try:
+            # Users collection indexes
+            await cls.db.users.create_index("email", unique=True)
+            
+            # Farmers collection indexes
+            await cls.db.farmers.create_index("phone", unique=True)
+            await cls.db.farmers.create_index("user_id")
+            
+            # Crop seasons indexes
+            await cls.db.crop_seasons.create_index("farmer_id")
+            await cls.db.crop_seasons.create_index("status")
+            await cls.db.crop_seasons.create_index("current_phase")
+            
+            # Tasks indexes
+            await cls.db.tasks.create_index("season_id")
+            await cls.db.tasks.create_index("status")
+            await cls.db.tasks.create_index("scheduled_date")
+            
+            # Conversations index
+            await cls.db.agent_conversations.create_index("season_id")
+            
+            print("✅ Database indexes created")
+        except Exception as e:
+            print(f"⚠️ Index creation warning: {e}")
     
     @classmethod
     def get_sync_db(cls):
