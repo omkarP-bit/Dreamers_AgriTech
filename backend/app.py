@@ -19,25 +19,9 @@ app = FastAPI(
 )
 
 # CORS middleware - MUST be added before routes
-allowed_origins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "https://dreamers-agri-tech-pink.vercel.app",
-]
-
-# Add wildcard for all Vercel preview deployments
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https://.*\.vercel\.app",
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"],
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
