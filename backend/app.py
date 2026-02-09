@@ -13,7 +13,7 @@ load_dotenv()
 app = FastAPI(
     title="Farm AI Assistant",
     description="Multi-Agent AI system for traditional & greenhouse farmers",
-    version="0.1.0",
+    version="0.1.1",
     docs_url="/docs",
     redoc_url="/redoc",
 )

@@ -149,6 +149,10 @@ git push origin main
 
 **Backend API**: https://farm-ai-assistant.onrender.com
 **API Docs**: https://farm-ai-assistant.onrender.com/docs
-**Frontend**: [Deploy to get URL]
+**Frontend**: https://dreamers-agri-tech-pink.vercel.app
+
+**Status**: 
+- ✅ Frontend deployed and live
+- ⏳ Backend deploying (wait 2-3 min for CORS fix)
 
 Good luck with your hackathon! 🚀
