@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: farm-ai-assistant
+    runtime: docker
+    plan: free
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: OPENWEATHER_API_KEY
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB_NAME
+        value: AgricultureDB
+      - key: PORT
+        value: 8000
