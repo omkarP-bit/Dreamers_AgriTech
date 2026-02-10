@@ -24,6 +24,7 @@ app.add_middleware(
     allow_origins=[
         "https://dreamers-agri-tech-pink.vercel.app",
         "https://dreamers-agri-tech-m4g0vp6ai-omkar-patils-projects-0199ca55.vercel.app",
+        "https://dreamers-agri-tech-r0y8n71hy-omkar-patils-projects-0199ca55.vercel.app",
         "http://localhost:5173",
         "http://localhost:3000"
     ],
@@ -31,7 +32,13 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
     expose_headers=["*"],
+    max_age=600,
 )
+
+# Handle OPTIONS requests explicitly
+@app.options("/{rest_of_path:path}")
+async def preflight_handler(rest_of_path: str):
+    return {"message": "OK"}
 
 # Include API routes
 app.include_router(router, prefix="/api")
