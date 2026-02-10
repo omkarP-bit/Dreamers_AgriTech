@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: farm-ai-assistant
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: PORT
+        value: 10000
