@@ -37,6 +37,7 @@ async def root():
     return {
         "message": "Farm AI Assistant API",
         "status": "running",
+        "version": "0.1.1",
         "docs": "/docs",
         "health": "/health",
         "api": "/api"
