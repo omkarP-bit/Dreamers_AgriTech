@@ -7,6 +7,7 @@ from typing import Optional
 from datetime import datetime
 from bson import ObjectId
 from config.settings import settings
+import ssl
 
 
 class Database:
@@ -21,6 +22,7 @@ class Database:
         try:
             cls.client = AsyncIOMotorClient(
                 settings.MONGODB_URI,
+                tlsAllowInvalidCertificates=True,
                 serverSelectionTimeoutMS=10000,
                 connectTimeoutMS=10000
             )
