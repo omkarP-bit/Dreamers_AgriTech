@@ -21,24 +21,11 @@ app = FastAPI(
 # CORS middleware - MUST be added before routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://dreamers-agri-tech-pink.vercel.app",
-        "https://dreamers-agri-tech-m4g0vp6ai-omkar-patils-projects-0199ca55.vercel.app",
-        "https://dreamers-agri-tech-r0y8n71hy-omkar-patils-projects-0199ca55.vercel.app",
-        "http://localhost:5173",
-        "http://localhost:3000"
-    ],
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"],
-    max_age=600,
 )
-
-# Handle OPTIONS requests explicitly
-@app.options("/{rest_of_path:path}")
-async def preflight_handler(rest_of_path: str):
-    return {"message": "OK"}
 
 # Include API routes
 app.include_router(router, prefix="/api")

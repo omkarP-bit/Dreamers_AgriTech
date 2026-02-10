@@ -8,6 +8,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: false,
 });
 
 // Add basic auth to requests (except for auth endpoints)
@@ -17,10 +18,8 @@ api.interceptors.request.use(
     if (!config.url.includes('/auth/login') && !config.url.includes('/auth/register')) {
       const credentials = localStorage.getItem('credentials');
       if (credentials) {
-        config.auth = {
-          username: credentials.split(':')[0],
-          password: credentials.split(':')[1],
-        };
+        const [username, password] = credentials.split(':');
+        config.headers.Authorization = 'Basic ' + btoa(username + ':' + password);
       }
     }
     return config;
