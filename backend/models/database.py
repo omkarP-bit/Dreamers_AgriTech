@@ -21,10 +21,8 @@ class Database:
         try:
             cls.client = AsyncIOMotorClient(
                 settings.MONGODB_URI,
-                tls=True,
-                tlsAllowInvalidCertificates=True,
-                serverSelectionTimeoutMS=5000,
-                connectTimeoutMS=5000
+                serverSelectionTimeoutMS=10000,
+                connectTimeoutMS=10000
             )
             cls.db = cls.client[settings.MONGODB_DB_NAME]
             # Test connection
