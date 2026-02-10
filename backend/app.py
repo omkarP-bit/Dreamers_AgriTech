@@ -51,7 +51,11 @@ async def health_check():
 @app.on_event("startup")
 async def startup_event():
     print("Starting Farm AI Assistant backend...")
-    await Database.connect_db()
+    try:
+        await Database.connect_db()
+    except Exception as e:
+        print(f"MongoDB connection warning: {e}")
+        print("Continuing without MongoDB - will retry on first request")
 
 @app.on_event("shutdown")
 async def shutdown_event():

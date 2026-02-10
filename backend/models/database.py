@@ -18,17 +18,24 @@ class Database:
     @classmethod
     async def connect_db(cls):
         """Connect to MongoDB"""
-        cls.client = AsyncIOMotorClient(
-            settings.MONGODB_URI,
-            tls=True,
-            tlsAllowInvalidCertificates=True,
-            serverSelectionTimeoutMS=5000
-        )
-        cls.db = cls.client[settings.MONGODB_DB_NAME]
-        print(f"✅ Connected to MongoDB: {settings.MONGODB_DB_NAME}")
-        
-        # Create indexes for better query performance
-        await cls.create_indexes()
+        try:
+            cls.client = AsyncIOMotorClient(
+                settings.MONGODB_URI,
+                tls=True,
+                tlsAllowInvalidCertificates=True,
+                serverSelectionTimeoutMS=5000,
+                connectTimeoutMS=5000
+            )
+            cls.db = cls.client[settings.MONGODB_DB_NAME]
+            # Test connection
+            await cls.client.admin.command('ping')
+            print(f"✅ Connected to MongoDB: {settings.MONGODB_DB_NAME}")
+            
+            # Create indexes for better query performance
+            await cls.create_indexes()
+        except Exception as e:
+            print(f"⚠️ MongoDB connection failed: {e}")
+            print("Will retry on first database operation")
     
     @classmethod
     async def close_db(cls):
