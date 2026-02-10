@@ -21,7 +21,8 @@ class Database:
         cls.client = AsyncIOMotorClient(
             settings.MONGODB_URI,
             tls=True,
-            tlsAllowInvalidCertificates=False
+            tlsAllowInvalidCertificates=True,
+            serverSelectionTimeoutMS=5000
         )
         cls.db = cls.client[settings.MONGODB_DB_NAME]
         print(f"✅ Connected to MongoDB: {settings.MONGODB_DB_NAME}")
